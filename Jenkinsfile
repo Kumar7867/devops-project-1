@@ -1,32 +1,35 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "devops-project"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        CONTAINER  = "devops-project-container"
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Cloning source code from GitHub'
                 checkout scm
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo 'Building Docker image'
                 sh '''
-                  docker build -t devops-project:1.0 .
+                  docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                 '''
             }
         }
 
         stage('Docker Deploy') {
             steps {
-                echo 'Running Docker container'
                 sh '''
-                  docker rm -f devops-project-container || true
+                  docker rm -f ${CONTAINER} || true
                   docker run -d \
-                    --name devops-project-container \
+                    --name ${CONTAINER} \
                     -p 8085:80 \
-                    devops-project:1.0
+                    ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
         }
