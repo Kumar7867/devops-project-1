@@ -22,17 +22,17 @@ pipeline {
             }
         }
 
-        stage('Docker Deploy') {
-            steps {
-                sh '''
-                  docker rm -f ${CONTAINER} || true
-                  docker run -d \
-                    --name ${CONTAINER} \
-                    -p 8085:80 \
-                    ${IMAGE_NAME}:${IMAGE_TAG}
-                '''
-            }
-        }
+        stage('Ansible Deploy') {
+    steps {
+        sh '''
+          ansible-playbook \
+            -i ansible/inventory \
+            ansible/deploy.yml \
+            --extra-vars "image_name=${IMAGE_NAME} image_tag=${IMAGE_TAG}"
+        '''
+    }
+}
+
 
         stage('Cleanup Old Images') {
     steps {

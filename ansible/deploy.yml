@@ -1,0 +1,21 @@
+- name: Deploy Docker Application
+  hosts: web
+  become: false
+
+  vars:
+    image_name: "{{ image_name }}"
+    image_tag: "{{ image_tag }}"
+    container_name: devops-project-container
+
+  tasks:
+    - name: Stop existing container
+      shell: docker rm -f {{ container_name }}
+      ignore_errors: yes
+
+    - name: Run new container
+      shell: >
+        docker run -d
+        --name {{ container_name }}
+        -p 8085:80
+        {{ image_name }}:{{ image_tag }}
+
