@@ -33,6 +33,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('Cleanup Old Images') {
+            steps {
+                sh '''
+                  echo "Cleaning up old Docker images..."
+                  docker images ${IMAGE_NAME} --format "{{.Repository}}:{{.Tag}}" \
+                    | tail -n +4 \
+                    | xargs -r docker rmi
+                '''
+            }
+        }
     }
 }
 
