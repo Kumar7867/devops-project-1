@@ -35,15 +35,21 @@ pipeline {
         }
 
         stage('Cleanup Old Images') {
-            steps {
-                sh '''
-                  echo "Cleaning up old Docker images..."
-                  docker images ${IMAGE_NAME} --format "{{.Repository}}:{{.Tag}}" \
-                    | tail -n +4 \
-                    | xargs -r docker rmi
-                '''
-            }
-        }
+    steps {
+        sh '''
+          echo "Cleaning up old Docker images (keeping last 3)..."
+
+          docker images ${IMAGE_NAME} \
+            --format "{{.Tag}}" \
+            | grep -E '^[0-9]+$' \
+            | sort -n \
+            | grep -v "^${IMAGE_TAG}$" \
+            | head -n -2 \
+            | xargs -r -I {} docker rmi ${IMAGE_NAME}:{}
+        '''
+    }
+}
+
     }
 }
 
